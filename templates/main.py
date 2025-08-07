@@ -43,4 +43,4 @@ def generate_certificate(name):
 
 
 if __name__ == '__main__':
-    index()
+    app.run(debug=True)
