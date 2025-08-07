@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, send_file
 from fpdf import FPDF
 import os
+import werkzeug.utils
 
 app = Flask(__name__)
 
@@ -8,10 +9,23 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        name = request.form['name']
-        phone = request.form['phone']
-        pdf_path = generate_certificate(name)
-        return send_file(pdf_path, as_attachment=True)
+        name = request.form.get('name', '').strip()
+        pin = request.form.get('pin', '').strip()
+        CORRECT_PIN = "1234"  # Set your desired PIN here
+
+        if not name:
+            return render_template('form.html', error="Name is required.")
+        if pin != CORRECT_PIN:
+            return render_template('form.html', error="Invalid PIN.")
+
+        safe_name = werkzeug.utils.secure_filename(name)
+        pdf_path = generate_certificate(safe_name)
+        response = send_file(pdf_path, as_attachment=True, download_name=f"{safe_name}_certificate.pdf")
+        try:
+            os.remove(pdf_path)
+        except Exception:
+            pass
+        return response
     return render_template('form.html')
 
 
