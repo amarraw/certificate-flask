@@ -1,54 +1,392 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Certificate Generator</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
-    .preview-img {
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0f0f23;
+      min-height: 100vh;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%);
+      animation: backgroundShift 20s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes backgroundShift {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(1deg); }
+    }
+
+    .main-container {
+      max-width: 480px;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 
+        0 32px 64px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      color: #ffffff;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .form-label {
       display: block;
-      margin: 10px auto;
-      max-width: 120px;
-      max-height: 120px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-label i {
+      width: 16px;
+      color: #7c7cf8;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 16px 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 16px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+    }
+
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #7c7cf8;
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 4px rgba(124, 124, 248, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .form-control:valid:not(:placeholder-shown) {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .form-control:invalid:not(:placeholder-shown) {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 120px;
+      font-family: inherit;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 18px 24px;
+      background: linear-gradient(135deg, #7c7cf8 0%, #a855f7 100%);
+      border: none;
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.6s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(124, 124, 248, 0.4);
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    /* Floating elements */
+    .floating-shape {
+      position: absolute;
       border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #dee2e6;
+      background: linear-gradient(135deg, rgba(124, 124, 248, 0.3), rgba(168, 85, 247, 0.3));
+      filter: blur(40px);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-shape:nth-child(1) {
+      width: 100px;
+      height: 100px;
+      top: 10%;
+      left: 10%;
+      animation-delay: -1s;
+    }
+
+    .floating-shape:nth-child(2) {
+      width: 150px;
+      height: 150px;
+      top: 60%;
+      right: 10%;
+      animation-delay: -3s;
+    }
+
+    .floating-shape:nth-child(3) {
+      width: 80px;
+      height: 80px;
+      bottom: 20%;
+      left: 15%;
+      animation-delay: -5s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      33% { transform: translateY(-20px) rotate(120deg); }
+      66% { transform: translateY(10px) rotate(240deg); }
+    }
+
+    /* Success state */
+    .success-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .success-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      max-width: 400px;
+      margin: 20px;
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+      color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 576px) {
+      .main-container {
+        padding: 16px;
+      }
+      
+      .card {
+        padding: 24px;
+        border-radius: 20px;
+      }
+      
+      .header h1 {
+        font-size: 24px;
+      }
+    }
+
+    /* Input validation styling */
+    .validation-icon {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .form-control:valid:not(:placeholder-shown) ~ .validation-icon.valid {
+      opacity: 1;
+      color: #10b981;
+    }
+
+    .form-control:invalid:not(:placeholder-shown) ~ .validation-icon.invalid {
+      opacity: 1;
+      color: #ef4444;
     }
   </style>
 </head>
-<body class="bg-light">
-  <div class="container mt-5">
-    <div class="card shadow mx-auto" style="max-width: 450px;">
-      <div class="card-body">
-        <h2 class="text-center mb-4">Get Your Python Certificate</h2>
-        
-        
-          <div class="mb-3">
-            <label for="name" class="form-label">Your Name</label>
-            <input type="text" name="name" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="phone" class="form-label">Phone Number</label>
-            <input type="text" name="phone" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="pin" class="form-label">PIN</label>
-            <input type="password" name="pin" class="form-control" required>
-          </div>
-          <button type="submit" class="btn btn-primary w-100">Download Certificate</button>
-          {% if error %}
-            <div class="alert alert-danger mt-3">{{ error }}</div>
-          {% endif %}
-        </form>
+<body>
+  <div class="floating-shape"></div>
+  <div class="floating-shape"></div>
+  <div class="floating-shape"></div>
+
+  <div class="main-container">
+    <div class="card">
+      <div class="header">
+        <h1>Certificate Generator</h1>
+        <p>Get your personalized certificate</p>
       </div>
+
+      <form method="POST" action="/" novalidate>
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-user"></i> Full Name
+          </label>
+          <div style="position: relative;">
+            <input type="text" name="name" class="form-control" placeholder="Enter your full name" required pattern="[A-Za-z\s]{2,50}" maxlength="50">
+            <i class="fas fa-check validation-icon valid"></i>
+            <i class="fas fa-times validation-icon invalid"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-envelope"></i> Email Address
+          </label>
+          <div style="position: relative;">
+            <input type="email" name="email" class="form-control" placeholder="your.email@example.com" required>
+            <i class="fas fa-check validation-icon valid"></i>
+            <i class="fas fa-times validation-icon invalid"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-phone"></i> Phone Number
+          </label>
+          <div style="position: relative;">
+            <input type="tel" name="phone" class="form-control" placeholder="+1 (555) 123-4567" required pattern="[\+]?[\d\s\-\(\)]{10,}">
+            <i class="fas fa-check validation-icon valid"></i>
+            <i class="fas fa-times validation-icon invalid"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-lock"></i> Security PIN
+          </label>
+          <div style="position: relative;">
+            <input type="password" name="pin" class="form-control" placeholder="4-6 digit PIN" required pattern="\d{4,6}" maxlength="6">
+            <i class="fas fa-check validation-icon valid"></i>
+            <i class="fas fa-times validation-icon invalid"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-comment"></i> Feedback (Optional)
+          </label>
+          <textarea name="feedback" class="form-control" placeholder="Share your thoughts or any additional comments..." maxlength="500"></textarea>
+        </div>
+
+        <button type="submit" class="btn">
+          <i class="fas fa-certificate me-2"></i>
+          Generate Certificate
+        </button>
+
+        {% if error %}
+          <div class="text-danger mt-3">{{ error }}</div>
+        {% endif %}
+      </form>
     </div>
   </div>
-  <script>
-    function previewPhoto(event) {
-      const [file] = event.target.files;
-      if (file) {
-        document.getElementById('photoPreview').src = URL.createObjectURL(file);
-      }
-    }
-  </script>
 </body>
 </html>

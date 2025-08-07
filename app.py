@@ -5,21 +5,27 @@ import werkzeug.utils
 
 app = Flask(__name__)
 
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        phone = request.form.get('phone', '').strip()
         pin = request.form.get('pin', '').strip()
-        CORRECT_PIN = "1234"  # Set your desired PIN here
+        feedback = request.form.get('feedback', '').strip()
+
+        CORRECT_PIN = "1234"
 
         if not name:
             return render_template('form.html', error="Name is required.")
         if pin != CORRECT_PIN:
             return render_template('form.html', error="Invalid PIN.")
 
+        # Logging the extra fields (for your reference)
+        print(f"Certificate requested by: {name}, Email: {email}, Phone: {phone}, Feedback: {feedback}")
+
         safe_name = werkzeug.utils.secure_filename(name)
-        pdf_path = generate_certificate(safe_name)
+        pdf_path = generate_certificate(safe_name, email, phone)
         response = send_file(pdf_path, as_attachment=True, download_name=f"{safe_name}_certificate.pdf")
         try:
             os.remove(pdf_path)
@@ -29,32 +35,33 @@ def index():
     return render_template('form.html')
 
 
-def generate_certificate(name):
+def generate_certificate(name, email, phone):
     pdf = FPDF('L', 'mm', 'A4')  # Landscape A4
     pdf.add_page()
 
-    # Add background image (full size)
+    # Background image
     pdf.image("back2.png", x=0, y=0, w=297, h=210)
 
-    # Set font
+    # Name
     pdf.set_font("Helvetica", 'B', 28)
     pdf.set_text_color(0, 0, 0)
-
-    # Calculate text width and center it
     text_width = pdf.get_string_width(name)
-    page_width = 297  # A4 Landscape width in mm
-    x_position = (page_width - text_width) / 2
-    y_position = 90  # Adjust based on your image
+    x_position = (297 - text_width) / 2
+    pdf.set_xy(x_position, 90)
+    pdf.cell(text_width + 2, 10, name)
 
-    # Add the name centered
-    pdf.set_xy(x_position, y_position)
-    pdf.cell(text_width + 2, 4, name)
+    # Add email and phone
+    pdf.set_font("Helvetica", '', 16)
+    pdf.set_text_color(60, 60, 60)
+    pdf.set_xy(10, 160)
+    pdf.cell(0, 10, f"Email: {email}")
+    pdf.set_xy(10, 170)
+    pdf.cell(0, 10, f"Phone: {phone}")
 
-    # Output file
     filename = f"{name}_certificate.pdf"
     pdf.output(filename)
     return filename
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
